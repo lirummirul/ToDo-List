@@ -8,6 +8,7 @@
 import UIKit
 
 class TodoRouter {
+    static let shared = TodoRouter()
     weak var viewController: UIViewController?
     
     func createTodoModule() -> UIViewController {
@@ -22,13 +23,25 @@ class TodoRouter {
         interactor.output = presenter
 
         presenter.view = view
+        self.viewController = view
 
         return view
     }
-//    
-//    func navigateToDetail(with mainText: String) {
-//        let detailViewController = TodoItemViewController()
-//        detailViewController.mainText = mainText
-//        viewController?.navigationController?.pushViewController(detailViewController, animated: true)
-//    }
+    
+    func navigateToDetail(with todo: Todo) {
+        let detailViewController = TodoItemViewController(todo: todo)
+        viewController?.navigationController?.pushViewController(detailViewController, animated: true)
+    }
+    
+    func navigateToAddTodo(with todos: [Todo], onTodoAdded: @escaping (Todo) -> Void) {
+        let addTodoViewController = AddTodoViewController(todos: todos, onTodoAdded: onTodoAdded)
+        viewController?.navigationController?.pushViewController(addTodoViewController, animated: true)
+    }
+    func navigateToMainViewController() {
+        guard let navigationController = viewController?.navigationController else {
+            print("NavigationController is nil")
+            return
+        }
+        navigationController.popViewController(animated: true)
+    }
 }

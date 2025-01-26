@@ -13,10 +13,10 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
         guard let scene = (scene as? UIWindowScene) else { return }
-        let router = TodoRouter()
-        let todoViewController = router.createTodoModule()
+        let todoViewController = TodoRouter.shared.createTodoModule()
+        let navigationController = UINavigationController(rootViewController: todoViewController)
         window = UIWindow(windowScene: scene)
-        window?.rootViewController = todoViewController
+        window?.rootViewController = navigationController
         window?.makeKeyAndVisible()
     }
 

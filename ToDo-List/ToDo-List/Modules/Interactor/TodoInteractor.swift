@@ -20,7 +20,7 @@ class TodoInteractor: TodoInteractorInput {
     private let parser = Parser()
 
     func fetchTodos() {
-        guard let url = URL(string: "https://run.mocky.io/v3/3e770bdf-b83d-4429-82e7-9c7deaf14d30") else {
+        guard let url = URL(string: "https://dummyjson.com/todos") else {
             output?.didFetchTodos(result: .failure(JSONParsingError.invalidData))
             return
         }

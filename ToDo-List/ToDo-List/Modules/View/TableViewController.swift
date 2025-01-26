@@ -20,7 +20,6 @@ protocol TableViewOutput: AnyObject {
 
 class TableViewController: UIViewController {
     var todos: [Todo] = []
-    var router: TodoRouter!
     var interactor: TodoInteractorInput!
     var presenter: TodoPresenterInput!
 
@@ -33,12 +32,30 @@ class TableViewController: UIViewController {
         return lable
     }()
     
+    private let addButton: UIButton = {
+         let button = UIButton(type: .system)
+         button.translatesAutoresizingMaskIntoConstraints = false
+         button.addTarget(self, action: #selector(addButtonTapped), for: .touchUpInside)
+         return button
+     }()
+    
+    private let plusImageView: UIImageView = {
+         let imageView = UIImageView()
+         imageView.translatesAutoresizingMaskIntoConstraints = false
+         imageView.image = UIImage(systemName: "plus")
+         imageView.tintColor = .white
+         imageView.contentMode = .scaleAspectFit
+         return imageView
+     }()
+    
     private lazy var tableView: UITableView = {
         let tableView = UITableView(frame: self.view.bounds, style: .plain)
         tableView.translatesAutoresizingMaskIntoConstraints = false
         tableView.dataSource = self
         tableView.delegate = self
         tableView.backgroundColor = .black
+        tableView.separatorStyle = .singleLine
+        tableView.separatorColor = .systemGray2
         return tableView
     }()
     
@@ -46,6 +63,13 @@ class TableViewController: UIViewController {
         let stack = UIStackView()
         stack.translatesAutoresizingMaskIntoConstraints = false
         stack.axis = .vertical
+        return stack
+    }()
+    
+    private let stackHorizontal: UIStackView = {
+        let stack = UIStackView()
+        stack.translatesAutoresizingMaskIntoConstraints = false
+        stack.axis = .horizontal
         return stack
     }()
     
@@ -59,24 +83,46 @@ class TableViewController: UIViewController {
     
     func setup() {
         tableView.register(TableViewCell.self, forCellReuseIdentifier: "TableViewCell")
+        addButton.addSubview(plusImageView)
+        [lable, addButton].forEach {
+            stackHorizontal.addArrangedSubview($0)
+        }
 
-        [lable, tableView].forEach {
+        [stackHorizontal, tableView].forEach {
             stack.addArrangedSubview($0)
         }
         
         self.view.addSubview(stack)
 //        self.view.addSubview(tableView)
         NSLayoutConstraint.activate([
-            lable.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 32),
-            lable.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 32),
-            lable.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
+            lable.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 16),
             lable.bottomAnchor.constraint(equalTo: tableView.topAnchor, constant: -16),
+            lable.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
+//            lable.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -32),
             
             stack.topAnchor.constraint(equalTo: view.topAnchor),
             stack.bottomAnchor.constraint(equalTo: view.bottomAnchor),
             stack.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            stack.trailingAnchor.constraint(equalTo: view.trailingAnchor)
+            stack.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            
+            addButton.widthAnchor.constraint(equalToConstant: 35),
+            addButton.heightAnchor.constraint(equalToConstant: 35),
+            addButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
+            
+            plusImageView.centerXAnchor.constraint(equalTo: addButton.centerXAnchor),
+            plusImageView.centerYAnchor.constraint(equalTo: addButton.centerYAnchor),
+            plusImageView.widthAnchor.constraint(equalToConstant: 30),
+            plusImageView.heightAnchor.constraint(equalToConstant: 30)
         ])
+    }
+    
+    @objc private func addButtonTapped() {
+        // Вызываем метод роутера для перехода на экран добавления новой заметки
+        TodoRouter.shared.navigateToAddTodo(with: todos) { [weak self] newTodo in
+            guard let self = self else { return }
+            self.todos.insert(newTodo, at: 0)
+            self.tableView.reloadData()
+        }
     }
 }
 
@@ -91,9 +137,9 @@ extension TableViewController: UITableViewDelegate, UITableViewDataSource {
         return cell
     }
     
-//    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-//        router.navigateToDetail(with: lable.text ?? "")
-//    }
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        TodoRouter.shared.navigateToDetail(with: todos[indexPath.row])
+    }
 }
 
 

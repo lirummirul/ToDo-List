@@ -151,16 +151,16 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "65BCD668-B7E4-4305-8956-21D2D8302ADE"
+            uuid = "F4B44F52-8151-41DB-BE3C-457926D90CC1"
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "ToDo-List/Modules/View/TableViewController.swift"
+            filePath = "ToDo-List/Modules/TodoRouter.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "94"
-            endingLineNumber = "94"
-            landmarkName = "tableView(_:didSelectRowAt:)"
+            startingLineNumber = "31"
+            endingLineNumber = "31"
+            landmarkName = "navigateToDetail(with:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
