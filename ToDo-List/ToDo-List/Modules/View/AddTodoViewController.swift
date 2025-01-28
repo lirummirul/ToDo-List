@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import CoreData
 
 class AddTodoViewController: UIViewController {
     var todos: [Todo]
@@ -130,30 +131,25 @@ class AddTodoViewController: UIViewController {
     }
 
     private func configureNavigationBar() {
-        // Создание UIImageView для стрелочки
         let backArrowImageView = UIImageView(image: UIImage(systemName: "chevron.left"))
         backArrowImageView.tintColor = .yellow
         backArrowImageView.translatesAutoresizingMaskIntoConstraints = false
 
-        // Создание UIButton для текста
         let backButton = UIButton(type: .system)
         backButton.setTitle("Назад", for: .normal)
         backButton.setTitleColor(.yellow, for: .normal)
-        backButton.titleLabel?.font = UIFont.systemFont(ofSize: 20) // Увеличьте размер шрифта
+        backButton.titleLabel?.font = UIFont.systemFont(ofSize: 20)
         backButton.translatesAutoresizingMaskIntoConstraints = false
         backButton.addTarget(self, action: #selector(backButtonTapped), for: .touchUpInside)
 
-        // Создание UIStackView для объединения стрелочки и текста
         let stackView = UIStackView(arrangedSubviews: [backArrowImageView, backButton])
         stackView.axis = .horizontal
         stackView.spacing = 8
         stackView.alignment = .center
         stackView.translatesAutoresizingMaskIntoConstraints = false
 
-        // Создание UIBarButtonItem с кастомным представлением
         let barButtonItem = UIBarButtonItem(customView: stackView)
 
-        // Установка кастомной кнопки в качестве левой кнопки навигационного бара
         self.navigationItem.leftBarButtonItem = barButtonItem
     }
 
@@ -169,12 +165,31 @@ class AddTodoViewController: UIViewController {
             present(alert, animated: true, completion: nil)
             return
         }
-        let maxId = todos.map { $0.id }.max() ?? 0
-        let maxUserId = todos.map { $0.userId }.max() ?? 0
+        let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
+        let newTodo = ToDoListItem(context: context)
+        newTodo.id = Int32(todos.map { $0.id }.max() ?? 0 + 1)
+        newTodo.todo = title
+        newTodo.completed = false
+        newTodo.userId = Int32(todos.map { $0.userId }.max() ?? 0 + 1)
+        newTodo.desc = description
+        newTodo.date = Date.now
 
-        let newTodo = Todo(id: maxId + 1, todo: title, completed: false, userId: maxUserId + 1, desc: description, date: Date.now)
-        onTodoAdded?(newTodo)
-        self.navigationController?.popViewController(animated: true)
+        do {
+            try context.save()
+            onTodoAdded?(Todo(id: Int(newTodo.id), todo: newTodo.todo, completed: newTodo.completed, userId: Int(newTodo.userId), desc: newTodo.desc, date: newTodo.date))
+            self.navigationController?.popViewController(animated: true)
+        } catch {
+            let alert = UIAlertController(title: "Ошибка", message: "Не удалось сохранить заметку", preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
+            present(alert, animated: true, completion: nil)
+        }
+//    }
+//        let maxId = todos.map { $0.id }.max() ?? 0
+//        let maxUserId = todos.map { $0.userId }.max() ?? 0
+//
+//        let newTodo = Todo(id: maxId + 1, todo: title, completed: false, userId: maxUserId + 1, desc: description, date: Date.now)
+//        onTodoAdded?(newTodo)
+//        self.navigationController?.popViewController(animated: true)
 //        router.navigateToMainViewController()
     }
 }

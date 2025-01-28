@@ -9,6 +9,7 @@ import Foundation
 
 protocol TodoPresenterInput: AnyObject {
     func presentTodos(result: Result<[Todo], Error>)
+    func fetchTodosFromCoreData()
 }
 
 //protocol TodoPresenterOutput: AnyObject {
@@ -17,18 +18,18 @@ protocol TodoPresenterInput: AnyObject {
 //}
 
 class TodoPresenter: TodoPresenterInput, TodoInteractorOutput {
-    func didFetchTodos(result: Result<[Todo], any Error>) {
-        DispatchQueue.main.async {
-            switch result {
-            case .success(let todos):
-                self.view?.presentTodos(todos: todos)
-            case .failure(let error):
-                self.view?.showError(error: error.localizedDescription)
-            }
-        }
+    weak var view: TableViewInput?
+    var interactor: TodoInteractorInput
+    
+    init(interactor: TodoInteractorInput) {
+        self.interactor = interactor
     }
     
-    weak var view: TableViewInput?
+    func didFetchTodos(result: Result<[Todo], Error>) {
+        DispatchQueue.main.async {
+            self.presentTodos(result: result)
+        }
+    }
 
     func presentTodos(result: Result<[Todo], Error>) {
         switch result {
@@ -38,4 +39,28 @@ class TodoPresenter: TodoPresenterInput, TodoInteractorOutput {
             view?.showError(error: error.localizedDescription)
         }
     }
+
+    func fetchTodosFromCoreData() {
+        interactor.fetchTodosFromCoreData()
+    }
+    
+//    func didFetchTodos(result: Result<[Todo], any Error>) {
+//        DispatchQueue.main.async {
+//            switch result {
+//            case .success(let todos):
+//                self.view?.presentTodos(todos: todos)
+//            case .failure(let error):
+//                self.view?.showError(error: error.localizedDescription)
+//            }
+//        }
+//    }
+
+//    func presentTodos(result: Result<[Todo], Error>) {
+//        switch result {
+//        case .success(let todos):
+//            view?.presentTodos(todos: todos)
+//        case .failure(let error):
+//            view?.showError(error: error.localizedDescription)
+//        }
+//    }
 }

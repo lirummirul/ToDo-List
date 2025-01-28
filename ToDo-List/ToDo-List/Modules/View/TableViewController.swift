@@ -79,6 +79,8 @@ class TableViewController: UIViewController {
         view.backgroundColor = .black
         interactor.fetchTodos()
         setup()
+        // Загрузка данных из Core Data
+        presenter.fetchTodosFromCoreData()
     }
     
     func setup() {
@@ -93,12 +95,10 @@ class TableViewController: UIViewController {
         }
         
         self.view.addSubview(stack)
-//        self.view.addSubview(tableView)
         NSLayoutConstraint.activate([
             lable.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 16),
             lable.bottomAnchor.constraint(equalTo: tableView.topAnchor, constant: -16),
             lable.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
-//            lable.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -32),
             
             stack.topAnchor.constraint(equalTo: view.topAnchor),
             stack.bottomAnchor.constraint(equalTo: view.bottomAnchor),
@@ -117,7 +117,6 @@ class TableViewController: UIViewController {
     }
     
     @objc private func addButtonTapped() {
-        // Вызываем метод роутера для перехода на экран добавления новой заметки
         TodoRouter.shared.navigateToAddTodo(with: todos) { [weak self] newTodo in
             guard let self = self else { return }
             self.todos.insert(newTodo, at: 0)
@@ -139,6 +138,17 @@ extension TableViewController: UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         TodoRouter.shared.navigateToDetail(with: todos[indexPath.row])
+    }
+    
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        let todo = todos[indexPath.row]
+        var height: CGFloat = 50
+
+        if todo.desc != nil || todo.date != nil {
+            height += 50
+        }
+
+        return height
     }
 }
 

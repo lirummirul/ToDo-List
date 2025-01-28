@@ -15,7 +15,7 @@ class TodoRouter {
         
         let view = TableViewController()
         let interactor = TodoInteractor()
-        let presenter = TodoPresenter()
+        let presenter = TodoPresenter(interactor: interactor)
 
         view.interactor = interactor
         view.presenter = presenter

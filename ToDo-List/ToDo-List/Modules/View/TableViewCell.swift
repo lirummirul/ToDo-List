@@ -10,7 +10,7 @@ import UIKit
 class TableViewCell: UITableViewCell {
     
     var onButtonTapped: (() -> Void)?
-    static let lableFont: CGFloat = 22
+    static let labelFont: CGFloat = 22
     static let descFont: CGFloat = 16
     static let spacing: CGFloat = 16
     
@@ -33,7 +33,7 @@ class TableViewCell: UITableViewCell {
     private let todoLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.font = UIFont.systemFont(ofSize: lableFont)
+        label.font = UIFont.boldSystemFont(ofSize: labelFont)
         label.textColor = .white
         label.numberOfLines = 0
         label.lineBreakMode = .byWordWrapping
@@ -50,26 +50,15 @@ class TableViewCell: UITableViewCell {
         return desc
     }()
     
-//    private let data: Date = {
-//        let date = Date()
-////        date.translatesAutoresizingMaskIntoConstraints = false
-////        date
-//        date.font = UIFont.systemFont(ofSize: 16)
-//        date.textColor = .white
-//        return date
-//    }()
-    
-//    private lazy var dateLabel: UILabel = {
-//        let date = Date()
-//        let dateString = formatDate(date)
-//
-//        let label = UILabel()
-//        label.translatesAutoresizingMaskIntoConstraints = false
-//        label.font = UIFont.systemFont(ofSize: 16)
-//        label.textColor = .white
-//        label.text = dateString
-//        return label
-//    }()
+    private let dateLabel: UILabel = {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.font = UIFont.systemFont(ofSize: descFont)
+        label.textColor = .white
+        label.numberOfLines = 0
+        label.lineBreakMode = .byWordWrapping
+        return label
+    }()
     
     private let stack: UIStackView = {
         let stack = UIStackView()
@@ -97,16 +86,16 @@ class TableViewCell: UITableViewCell {
         setupView()
     }
     
-//    private func formatDate(_ date: Date) -> String {
-//        let dateFormatter = DateFormatter()
-//        dateFormatter.dateFormat = "dd/MM/yyyy"
-//        return dateFormatter.string(from: date)
-//    }
+    private func formatDate(_ date: Date) -> String {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "dd/MM/yyyy"
+        return dateFormatter.string(from: date)
+    }
     
     private func setupView() {
         contentView.backgroundColor = .black
         button.addSubview(checkmarkImageView)
-        [todoLabel].forEach {
+        [todoLabel, desc, dateLabel].forEach {
             stackVertical.addArrangedSubview($0)
         }
         [button, stackVertical].forEach {
@@ -123,11 +112,11 @@ class TableViewCell: UITableViewCell {
             button.widthAnchor.constraint(equalToConstant: 35),
             button.heightAnchor.constraint(equalToConstant: 35),
             
-            checkmarkImageView.centerXAnchor.constraint(equalTo: button.centerXAnchor),
-            checkmarkImageView.centerYAnchor.constraint(equalTo: button.centerYAnchor),
-            checkmarkImageView.widthAnchor.constraint(equalToConstant: 35), // Увеличьте ширину изображения
-            checkmarkImageView.heightAnchor.constraint(equalToConstant: 35) // Увеличьте высоту изображения
-                  
+            checkmarkImageView.widthAnchor.constraint(equalToConstant: 35),
+            checkmarkImageView.heightAnchor.constraint(equalToConstant: 35),
+            
+            desc.topAnchor.constraint(equalTo: todoLabel.bottomAnchor, constant: 4),
+            dateLabel.topAnchor.constraint(equalTo: desc.bottomAnchor, constant: 4)
         ])
     }
 
@@ -136,9 +125,21 @@ class TableViewCell: UITableViewCell {
         button.isSelected = todo.completed
         updateButtonImage()
         updateButtonColor()
-        updateLabelStrikeThrough()
-//        desc.text = todo.desc
-//        dateLabel.text = formatDate(todo.date)
+//        updateLabelStrikeThrough()
+        
+        if let description = todo.desc {
+            desc.text = description
+            desc.isHidden = false
+        } else {
+            desc.isHidden = true
+        }
+
+        if let date = todo.date {
+            dateLabel.text = formatDate(date)
+            dateLabel.isHidden = false
+        } else {
+            dateLabel.isHidden = true
+        }
     }
     
     @objc private func buttonTapped() {
@@ -146,7 +147,7 @@ class TableViewCell: UITableViewCell {
         updateButtonImage()
         updateButtonColor()
         onButtonTapped?()
-        updateLabelStrikeThrough()
+//        updateLabelStrikeThrough()
     }
     
     private func updateButtonImage() {
@@ -158,13 +159,13 @@ class TableViewCell: UITableViewCell {
         button.tintColor = button.isSelected ? .yellow : .white
     }
     
-    private func updateLabelStrikeThrough() {
-        let attributedString = NSMutableAttributedString(string: todoLabel.text ?? "")
-        if button.isSelected {
-            attributedString.addAttribute(.strikethroughStyle, value: NSUnderlineStyle.single.rawValue, range: NSRange(location: 0, length: attributedString.length))
-        } else {
-            attributedString.removeAttribute(.strikethroughStyle, range: NSRange(location: 0, length: attributedString.length))
-        }
-        todoLabel.attributedText = attributedString
-    }
+//    private func updateLabelStrikeThrough() {
+//        let attributedString = NSMutableAttributedString(string: todoLabel.text ?? "")
+//        if button.isSelected {
+//            attributedString.addAttribute(.strikethroughStyle, value: NSUnderlineStyle.single.rawValue, range: NSRange(location: 0, length: attributedString.length))
+//        } else {
+//            attributedString.removeAttribute(.strikethroughStyle, range: NSRange(location: 0, length: attributedString.length))
+//        }
+//        todoLabel.attributedText = attributedString
+//    }
 }
